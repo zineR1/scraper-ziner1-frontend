@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { RightPanel } from "@/components/RightPanel";
 import { ScraperView } from "@/components/ScraperView";
 
-const API_BASE = "https://backend-scraping-ziner1-scraping-ziner1.zkmnde.easypanel.host";
+const API_BASE = "https://backend.24.199.67.13.nip.io";
 
 interface ProcessResult {
   final_email: string;
