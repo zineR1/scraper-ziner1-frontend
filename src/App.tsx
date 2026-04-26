@@ -19,6 +19,8 @@ function App() {
   const [headers, setHeaders] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ProcessResult | null>(null);
+  const [selectedTone, setSelectedTone] = useState("Formal");
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const handleSubmit = async () => {
     if (!url.trim()) return;
@@ -48,6 +50,31 @@ function App() {
     }
   };
 
+  const handleChangeTone = async () => {
+    if (!result) return;
+    setIsRegenerating(true);
+    try {
+      const response = await fetch(`${API_BASE}/regenerate-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profile_data: result.profile_data ?? "",
+          tone: selectedTone,
+        }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Error regenerando email");
+      }
+      const data = await response.json();
+      setResult({ ...result, final_email: data.final_email });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error inesperado");
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar activeItem={activeNav} onNavigate={setActiveNav} />
@@ -58,6 +85,10 @@ function App() {
         onSubmit={handleSubmit}
         isLoading={isLoading}
         result={result}
+        selectedTone={selectedTone}
+        onToneChange={setSelectedTone}
+        onChangeTone={handleChangeTone}
+        isRegenerating={isRegenerating}
       />
 
       <RightPanel

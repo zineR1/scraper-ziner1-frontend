@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Info, Mail, Building2, Copy, Check, Globe, Loader2 } from "lucide-react";
+import { Info, Mail, Building2, Copy, Check, Globe, Loader2, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
+
+const TONE_OPTIONS = ["Formal", "Amigable", "Directo", "Persuasivo"] as const;
 
 interface ScraperViewProps {
   url: string;
@@ -16,6 +18,10 @@ interface ScraperViewProps {
     target_url: string;
     run_id: string | null;
   } | null;
+  selectedTone: string;
+  onToneChange: (tone: string) => void;
+  onChangeTone: () => void;
+  isRegenerating: boolean;
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -44,6 +50,10 @@ export function ScraperView({
   onSubmit,
   isLoading,
   result,
+  selectedTone,
+  onToneChange,
+  onChangeTone,
+  isRegenerating,
 }: ScraperViewProps) {
   return (
     <main className="flex-1 p-8 overflow-y-auto">
@@ -196,9 +206,52 @@ export function ScraperView({
                 </div>
                 <div className="p-5">
                   <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-[inherit]">
-                    {result.final_email}
+                    {isRegenerating ? (
+                      <div className="flex items-center gap-2 text-indigo-500">
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Regenerando email...</span>
+                      </div>
+                    ) : (
+                      result.final_email
+                    )}
                   </div>
                 </div>
+              </motion.div>
+
+              {/* Tone customization */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 }}
+                className="flex items-center gap-3 px-1"
+              >
+                <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                  Tono
+                </label>
+                <select
+                  value={selectedTone}
+                  onChange={(e) => onToneChange(e.target.value)}
+                  disabled={isRegenerating}
+                  className="flex-1 rounded-md border border-input bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50"
+                >
+                  {TONE_OPTIONS.map((tone) => (
+                    <option key={tone} value={tone}>
+                      {tone}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  onClick={onChangeTone}
+                  disabled={isRegenerating}
+                  className="whitespace-nowrap bg-indigo-500 hover:bg-indigo-400 text-white font-medium shadow-sm shadow-indigo-500/20 disabled:opacity-50"
+                >
+                  {isRegenerating ? (
+                    <Loader2 size={14} className="animate-spin mr-1.5" />
+                  ) : (
+                    <RefreshCw size={14} className="mr-1.5" />
+                  )}
+                  Cambiar estilo
+                </Button>
               </motion.div>
 
               {/* Perfil del Negocio */}
